@@ -6,6 +6,7 @@ import (
 	"mindblog/internal/config"
 	"mindblog/internal/middleware"
 	"mindblog/internal/posts"
+	"strings"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -20,11 +21,19 @@ func main() {
 
 	r := gin.Default()
 
+	origins := []string{}
+	for _, o := range strings.Split(cfg.FrontendOrigin, ",") {
+		o = strings.TrimSpace(o)
+		if o != "" {
+			origins = append(origins, o)
+		}
+	}
+
 	r.Use(cors.New(cors.Config{
-		AllowAllOrigins:  true,
+		AllowOrigins:     origins,
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
-		AllowCredentials: false,
+		AllowCredentials: true,
 	}))
 	r.Use(middleware.RateLimit(10))
 
